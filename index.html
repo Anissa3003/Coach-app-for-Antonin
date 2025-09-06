@@ -286,10 +286,26 @@ function isAllStars(w){
 function getWeekIndex(weeks, weekId){
   return weeks.findIndex(w => w.weekId===weekId);
 }
-function sortWeeksAsc(weeks){
-  // weekId = "YYYY-Www" -> tri simple
-  return [...weeks].sort((a,b)=> a.weekId.localeCompare(b.weekId));
+function parseWeekId(id){
+  // accepte W2 ou W02
+  const m = /^(\d{4})-W(\d{1,2})$/.exec(id || "");
+  return m ? {year: +m[1], week: +m[2]} : null;
 }
+function sortWeeksAsc(weeks){
+  return [...weeks].sort((a,b)=>{
+    const A = parseWeekId(a.weekId), B = parseWeekId(b.weekId);
+    if(!A || !B) return (a.weekId||"").localeCompare(b.weekId||"");
+    if(A.year !== B.year) return A.year - B.year;
+    return A.week - B.week;
+  });
+}
+function normalizeWeekId(id){
+  const m = /^(\d{4})-W(\d{1,2})$/.exec(id || "");
+  if(!m) return id;
+  const yy = m[1], ww = String(+m[2]).padStart(2, "0");
+  return `${yy}-W${ww}`;
+}
+
 
 /* ------------------------------
    Règles (sanctions & récompenses)
@@ -441,7 +457,7 @@ $('#applyBonusBtn').addEventListener('click', ()=>{
 
 /* Enregistrer */
 $('#saveBtn').addEventListener('click', ()=>{
-  const weekId = $('#weekInput').value.trim();
+let weekId = normalizeWeekId($('#weekInput').value.trim());
   if(!weekId){ alert('Choisis une semaine.'); return; }
   function val(name){ const i = document.querySelector(`input[name="${name}"]:checked`); return i? i.value : null; }
 
