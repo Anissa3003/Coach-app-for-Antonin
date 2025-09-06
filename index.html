@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Coach ⭐/❌ – Semaine</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0b5fff">
+  <style>
+    /* --- Reset + Mobile-first layout --- */
+    :root{
+      --brand:#0b5fff; --ink:#111; --muted:#667; --bg:#f7f9fc; --card:#fff;
+      --ok:#137a1f; --bad:#c62828; --grave:#8b0000; --star:#ff9800;
+      --pill:#e9eefb; --chip:#eef4ff;
+      --radius:14px; --radius-sm:10px; --shadow:0 6px 22px rgba(0,0,0,.08);
+      font-synthesis-weight:none; font-synthesis-style:none;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    a{color:var(--brand);text-decoration:none}
+    header{
+      position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(10px);
+      background:rgba(247,249,252,.8); border-bottom:1px solid #e8edf8;
+    }
+    .wrap{max-width:960px; margin:0 auto; padding:14px 14px}
+    .title{display:flex; gap:10px; align-items:center}
+    .logo{
+      width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#0b5fff,#6aa7ff);
+      display:grid; place-items:center; color:#fff; font-weight:700; box-shadow:var(--shadow)
+    }
+    h1{font-size:18px; margin:0}
+    main{padding:14px}
+    .card{
+      background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:14px; margin:12px 0;
+    }
+    .grid{display:grid; gap:12px}
+    @media(min-width:820px){ .grid-2{grid-template-columns:1fr 1fr} }
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .pill{
+      background:var(--pill); color:#123; padding:8px 12px; border-radius:999px; font-size:14px; display:inline-flex; gap:8px; align-items:center
+    }
+    .chip{background:var(--chip); border-radius:999px; padding:6px 10px; font-size:12px}
+    button, select, input[type="week"]{
+      appearance:none;border:1px solid #ccd7f7;background:#fff;border-radius:12px;
+      padding:10px 12px;font:inherit; transition:.15s; min-height:44px;
+    }
+    button{background:var(--brand);border:none;color:#fff;font-weight:600;cursor:pointer}
+    button.ghost{background:#fff;border:1px solid #ccd7f7;color:#123}
+    button.warn{background:var(--bad)}
+    button.small{min-height:36px; padding:8px 12px; border-radius:10px}
+    .hint{color:var(--muted); font-size:13px}
+    .kpi{display:flex; gap:16px; flex-wrap:wrap}
+    .kpi .box{
+      background:#fff; border-radius:12px; padding:12px 14px; min-width:120px; box-shadow:var(--shadow);
+    }
+    .kpi .big{font-weight:800; font-size:22px}
+    .status-good{color:var(--ok)} .status-bad{color:var(--bad)} .status-grave{color:var(--grave)}
+    .star{color:var(--star)} .cross{color:var(--bad)}
+    .table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:12px}
+    .table th, .table td{padding:10px 8px; text-align:left; font-size:14px; border-bottom:1px solid #eef2fd}
+    .table th{background:#f1f5ff; font-weight:700}
+    .flex-end{display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap}
+    .badge{padding:6px 10px; border-radius:999px; font-size:12px; background:#eef4ff}
+    .rule{padding:8px 10px; border-left:4px solid #dde6ff; background:#f6f9ff; border-radius:8px; margin:6px 0}
+    .divider{height:1px; background:#eef2fd; margin:10px 0}
+    footer{padding:30px 14px 40px; text-align:center; color:var(--muted); font-size:12px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap title">
+    <div class="logo">C</div>
+    <div>
+      <h1>Coach ⭐ / ❌ – suivi hebdo</h1>
+      <div class="hint">Évalue 4 domaines, applique automatiquement les règles, et suis les récompenses/sanctions.</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Saisie semaine -->
+  <section class="card">
+    <div class="row" style="justify-content:space-between; align-items:end;">
+      <div>
+        <div class="pill">Semaine <input id="weekInput" type="week" /></div>
+        <div class="hint">Choisis la semaine à évaluer (lundi→dimanche).</div>
+      </div>
+      <div class="row">
+        <button id="saveBtn">Enregistrer la semaine</button>
+        <button class="ghost" id="newBtn">Nouvelle saisie</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="grid grid-2">
+      <!-- Catégories -->
+      <div class="card" style="margin:0">
+        <h3 style="margin:0 0 8px">1) Assiduité scolaire</h3>
+        <div class="row">
+          <label><input type="radio" name="assiduite" value="star"> ⭐</label>
+          <label><input type="radio" name="assiduite" value="cross"> ❌</label>
+          <label><input type="radio" name="assiduite" value="grave"> ❌ grave</label>
+        </div>
+        <div class="hint">Notes, devoirs faits, sérieux.</div>
+      </div>
+
+      <div class="card" style="margin:0">
+        <h3 style="margin:0 0 8px">2) Comportement scolaire <span class="badge">❌ compte double</span></h3>
+        <div class="row">
+          <label><input type="radio" name="comportementScolaire" value="star"> ⭐</label>
+          <label><input type="radio" name="comportementScolaire" value="cross"> ❌</label>
+          <label><input type="radio" name="comportementScolaire" value="grave"> ❌ grave</label>
+        </div>
+        <div class="hint">Règles du collège, respect, sanctions (= faute grave).</div>
+      </div>
+
+      <div class="card" style="margin:0">
+        <h3 style="margin:0 0 8px">3) Comportement à la maison</h3>
+        <div class="row">
+          <label><input type="radio" name="maison" value="star"> ⭐</label>
+          <label><input type="radio" name="maison" value="cross"> ❌</label>
+          <label><input type="radio" name="maison" value="grave"> ❌ grave</label>
+        </div>
+        <div class="hint">Aide, rangement, respect, calme.</div>
+      </div>
+
+      <div class="card" style="margin:0">
+        <h3 style="margin:0 0 8px">4) Entraînement de foot</h3>
+        <div class="row">
+          <label><input type="radio" name="foot" value="star"> ⭐</label>
+          <label><input type="radio" name="foot" value="cross"> ❌</label>
+          <label><input type="radio" name="foot" value="grave"> ❌ grave</label>
+        </div>
+        <div class="hint">Donner le meilleur, respect du coach et des coéquipiers.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="row" style="justify-content:space-between; align-items:center;">
+      <div class="hint">Astuce : tu peux appliquer un “bonus étoile” pour effacer 1 ❌ standard (jamais une ❌ grave).</div>
+      <button class="small ghost" id="applyBonusBtn" title="Effacer une ❌ non grave si un bonus est dispo">Appliquer 1 bonus à cette semaine</button>
+    </div>
+  </section>
+
+  <!-- KPI / Récap -->
+  <section class="card">
+    <div class="kpi">
+      <div class="box">
+        <div class="hint">Série “tout ⭐”</div>
+        <div class="big" id="starStreak">0</div>
+      </div>
+      <div class="box">
+        <div class="hint">Bonus disponibles</div>
+        <div class="big" id="bonusCount">0</div>
+      </div>
+      <div class="box">
+        <div class="hint">Dernière sanction</div>
+        <div id="lastSanction">Aucune</div>
+      </div>
+      <div class="box">
+        <div class="hint">Dernière récompense</div>
+        <div id="lastReward">Aucune</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Historique -->
+  <section class="card">
+    <div class="row" style="justify-content:space-between; align-items:center;">
+      <h3 style="margin:0">Historique des semaines</h3>
+      <div class="row">
+        <button class="ghost small" id="exportBtn">Exporter (.json)</button>
+        <label class="ghost small" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+          Importer <input type="file" id="importInput" accept="application/json" style="display:none">
+        </label>
+        <button class="warn small" id="resetBtn" title="Efface toutes les données">Réinitialiser</button>
+      </div>
+    </div>
+    <table class="table" id="historyTable">
+      <thead>
+        <tr>
+          <th>Semaine</th>
+          <th>Assiduité</th>
+          <th>Comportement scolaire</th>
+          <th>Maison</th>
+          <th>Foot</th>
+          <th>Total ❌</th>
+          <th>Grave ?</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+    <div class="hint">Règle “❌ scolaire compte double” déjà incluse dans “Total ❌”.</div>
+  </section>
+
+  <!-- Règles affichées -->
+  <section class="card">
+    <h3 style="margin-top:0">Règles & engagements</h3>
+    <div class="rule"><strong>Sanctions</strong> :
+      <ul>
+        <li>❌ dans une catégorie, 2 semaines de suite ⟶ <em>argent de poche bloqué 1 semaine</em>.</li>
+        <li>≥ 2 ❌ par semaine, pendant 2 semaines de suite ⟶ <em>CB verrouillée + pas d’écrans 1 semaine</em>.</li>
+        <li>≥ 3 ❌ dans une même semaine, ou ≥ 2 ❌ dont 1 grave ⟶ <em>pas d’anniversaire/événement 3 semaines + pas de stage de foot</em>.</li>
+        <li>❌ en “comportement scolaire” compte double.</li>
+      </ul>
+    </div>
+    <div class="rule"><strong>Récompenses (série “tout ⭐”)</strong> :
+      <ul>
+        <li>1 semaine ⭐ : bravo !</li>
+        <li>2 semaines ⭐ : bravo !</li>
+        <li>3 semaines ⭐ : +1 bonus (efface 1 ❌ standard, jamais une ❌ grave).</li>
+        <li>5e semaine et + : +1 bonus / semaine.</li>
+        <li>6 semaines ⭐ : <em>stage spécial gardien</em>.</li>
+        <li>12 semaines ⭐ : <em>1 équipement de foot</em>.</li>
+        <li>20 semaines ⭐ : <em>places de match (LdC / Équipe de France)</em>.</li>
+      </ul>
+    </div>
+    <div class="rule"><strong>Engagements</strong> :
+      <ul>
+        <li><em>Collège :</em> devoirs & fiches soignés et à l’heure ; respect des règles, profs & camarades ; 0 sanction (sanction = faute grave) ; participation active et pertinente en classe.</li>
+        <li><em>Maison :</em> aider (LV, table, chat…), ranger ses affaires, faire son lit sans qu’on le demande, parler avec respect et rester calme.</li>
+        <li><em>Entraînement :</em> donner le meilleur de soi, respecter coach, coéquipiers et adversaires.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Données stockées localement (aucun cloud). Tu peux exporter/importer en JSON. — v1.0
+</footer>
+
+<script>
+/* ------------------------------
+   Stockage & Modèle de données
+   ------------------------------ */
+const LS_KEY = 'coach_app_data_v1';
+/*
+data = {
+  weeks: [{weekId:'2025-W36', assiduite:'star|cross|grave', scolaire:'star|cross|grave', maison:'...', foot:'...', bonusApplied:false}],
+  bonuses: 0,
+  lastSanction: '',
+  lastReward: ''
+}
+*/
+function loadData(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(!raw){ return {weeks:[], bonuses:0, lastSanction:'', lastReward:''}; }
+  try{ return JSON.parse(raw); }catch{ return {weeks:[], bonuses:0, lastSanction:'', lastReward:''}; }
+}
+function saveData(d){ localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+
+/* ------------------------------
+   Utilitaires
+   ------------------------------ */
+const $ = s => document.querySelector(s);
+function fmtStatus(v){
+  if(v==='star') return '⭐';
+  if(v==='cross') return '❌';
+  if(v==='grave') return '❌ grave';
+  return '—';
+}
+function crossesForWeek(w){
+  // Calcule total ❌ de la semaine (scolaire compte double) et flag grave
+  let total = 0; let grave = false;
+
+  function add(val, weight=1){
+    if(val==='cross') total += weight;
+    if(val==='grave'){ total += weight; grave = true; }
+  }
+  add(w.assiduite, 1);
+  add(w.maison, 1);
+  add(w.foot, 1);
+  // scolaire compte double
+  add(w.scolaire, 2);
+
+  // Bonus appliqué ? Efface 1 ❌ standard (pas grave)
+  if(w.bonusApplied && !grave && total>0){ total = Math.max(0, total-1); }
+
+  return { total, grave };
+}
+function isAllStars(w){
+  return ['assiduite','scolaire','maison','foot'].every(k => w[k]==='star');
+}
+function getWeekIndex(weeks, weekId){
+  return weeks.findIndex(w => w.weekId===weekId);
+}
+function sortWeeksAsc(weeks){
+  // weekId = "YYYY-Www" -> tri simple
+  return [...weeks].sort((a,b)=> a.weekId.localeCompare(b.weekId));
+}
+
+/* ------------------------------
+   Règles (sanctions & récompenses)
+   ------------------------------ */
+function evaluateSanctionsAndRewards(data){
+  const weeks = sortWeeksAsc(data.weeks);
+  if(weeks.length===0){ return; }
+
+  // 1) Sanctions selon les 2 dernières semaines
+  const last = weeks[weeks.length-1];
+  const prev = weeks[weeks.length-2];
+  const lastCross = crossesForWeek(last);
+  const prevCross = prev ? crossesForWeek(prev) : {total:0,grave:false};
+
+  // a) ❌ dans une même catégorie, 2 semaines de suite -> argent de poche bloqué
+  // On vérifie par catégorie :
+  let pocketMoney = false;
+  if(prev){
+    ['assiduite','scolaire','maison','foot'].forEach(cat=>{
+      if((prev[cat]==='cross' || prev[cat]==='grave') && (last[cat]==='cross' || last[cat]==='grave')){
+        pocketMoney = true;
+      }
+    });
+  }
+  if(pocketMoney){
+    data.lastSanction = "Argent de poche bloqué 1 semaine (❌ dans une même catégorie, 2 semaines de suite)";
+  }
+
+  // b) ≥2 ❌ par semaine, pendant 2 semaines de suite -> CB + écrans off 1 semaine
+  if(prev && prevCross.total>=2 && lastCross.total>=2){
+    data.lastSanction = "CB verrouillée + pas d’écrans 1 semaine (≥2 ❌ sur 2 semaines consécutives)";
+  }
+
+  // c) ≥3 ❌ dans une semaine, ou ≥2 ❌ dont 1 grave -> sanction forte
+  if(lastCross.total>=3 || (lastCross.total>=2 && lastCross.grave)){
+    data.lastSanction = "Pas d’anniversaire/événement 3 semaines + pas de stage de foot (semaine trop chargée en ❌)";
+  }
+
+  // 2) Récompenses selon la série “tout ⭐”
+  // On calcule le streak courant (consécutives en fin d'historique)
+  let streak = 0;
+  for(let i=weeks.length-1; i>=0; i--){
+    if(isAllStars(weeks[i])) streak++;
+    else break;
+  }
+  let rewardMsg = '';
+  if(streak===1){ rewardMsg = "Bravo ! 1 semaine tout ⭐"; }
+  else if(streak===2){ rewardMsg = "Bravo ! 2 semaines tout ⭐"; }
+  else if(streak===3){
+    rewardMsg = "Bonus gagné : 1 bonus (efface 1 ❌ standard)";
+    data.bonuses = (data.bonuses||0) + 1;
+  } else if(streak>=5){
+    rewardMsg = "Bonus hebdo : +1 bonus (5e semaine et +)";
+    data.bonuses = (data.bonuses||0) + 1;
+  }
+  // Récompenses jalons
+  if(streak===6){ rewardMsg = "Récompense jalon : Stage spécial gardien"; }
+  if(streak===12){ rewardMsg = "Récompense jalon : 1 équipement de foot"; }
+  if(streak===20){ rewardMsg = "Récompense jalon : Places de match (LdC / Équipe de France)"; }
+  if(rewardMsg){ data.lastReward = rewardMsg; }
+
+  saveData(data);
+}
+
+/* ------------------------------
+   UI : chargement, rendu, actions
+   ------------------------------ */
+const state = loadData();
+
+function setWeekToCurrentMonday(){
+  // Défaut = semaine en cours
+  const today = new Date();
+  const first = new Date(today);
+  const day = (today.getDay()+6)%7; // 0=lundi
+  first.setDate(today.getDate()-day);
+  const year = first.getFullYear();
+  // numéro de semaine ISO
+  const isoWeek = (date=>{
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate()+4-dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    const weekNo = Math.ceil((((d - yearStart)/86400000)+1)/7);
+    return {year:d.getUTCFullYear(), week:weekNo};
+  })(first);
+  const pad = n => String(n).padStart(2,'0');
+  $('#weekInput').value = `${isoWeek.year}-W${pad(isoWeek.week)}`;
+}
+setWeekToCurrentMonday();
+
+function clearForm(){
+  document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
+  $('#applyBonusBtn').dataset.applied = 'false';
+  $('#applyBonusBtn').classList.remove('star');
+  $('#applyBonusBtn').textContent = 'Appliquer 1 bonus à cette semaine';
+}
+
+function render(){
+  // KPIs
+  // streak
+  const weeks = sortWeeksAsc(state.weeks);
+  let streak=0;
+  for(let i=weeks.length-1;i>=0;i--){
+    if(isAllStars(weeks[i])) streak++; else break;
+  }
+  $('#starStreak').textContent = streak;
+  $('#bonusCount').textContent = state.bonuses||0;
+  $('#lastSanction').textContent = state.lastSanction || 'Aucune';
+  $('#lastReward').textContent = state.lastReward || 'Aucune';
+
+  // Table
+  const body = $('#historyBody');
+  body.innerHTML = '';
+  weeks.forEach(w=>{
+    const {total,grave} = crossesForWeek(w);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="chip">${w.weekId}</span></td>
+      <td>${fmtStatus(w.assiduite)}</td>
+      <td>${fmtStatus(w.scolaire)}</td>
+      <td>${fmtStatus(w.maison)}</td>
+      <td>${fmtStatus(w.foot)}</td>
+      <td><strong class="${total>0?'status-bad':''}">${total}</strong>${w.bonusApplied?' <span class="badge">−1 bonus</span>':''}</td>
+      <td>${grave?'<span class="status-grave">oui</span>':'non'}</td>
+      <td>
+        <button class="small ghost" data-edit="${w.weekId}">Modifier</button>
+        <button class="small warn" data-del="${w.weekId}">Suppr.</button>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+}
+render();
+
+/* Appliquer 1 bonus (marque la semaine courante comme utilisant 1 bonus si possible) */
+$('#applyBonusBtn').addEventListener('click', ()=>{
+  if((state.bonuses||0)<=0){ alert('Aucun bonus disponible.'); return; }
+  const applied = $('#applyBonusBtn').dataset.applied==='true';
+  if(!applied){
+    $('#applyBonusBtn').dataset.applied='true';
+    $('#applyBonusBtn').classList.add('star');
+    $('#applyBonusBtn').textContent = 'Bonus marqué pour cette semaine';
+  }else{
+    $('#applyBonusBtn').dataset.applied='false';
+    $('#applyBonusBtn').classList.remove('star');
+    $('#applyBonusBtn').textContent = 'Appliquer 1 bonus à cette semaine';
+  }
+});
+
+/* Enregistrer */
+$('#saveBtn').addEventListener('click', ()=>{
+  const weekId = $('#weekInput').value.trim();
+  if(!weekId){ alert('Choisis une semaine.'); return; }
+  function val(name){ const i = document.querySelector(`input[name="${name}"]:checked`); return i? i.value : null; }
+
+  const assiduite = val('assiduite');
+  const scolaire = val('comportementScolaire');
+  const maison   = val('maison');
+  const foot     = val('foot');
+
+  if(!assiduite || !scolaire || !maison || !foot){
+    alert('Sélectionne ⭐ / ❌ pour chaque catégorie.'); return;
+  }
+
+  const bonusFlag = $('#applyBonusBtn').dataset.applied==='true';
+
+  // Si bonus appliqué, décrémente globalement (mais seulement si la semaine a au moins 1 ❌ non grave)
+  const tempWeek = {weekId, assiduite, scolaire, maison, foot, bonusApplied:false};
+  let {total,grave} = crossesForWeek(tempWeek);
+  if(bonusFlag && !grave && total>0){
+    if((state.bonuses||0)<=0){ alert('Plus de bonus disponibles.'); return; }
+    state.bonuses--;
+  }
+
+  const entry = {weekId, assiduite, scolaire, maison, foot, bonusApplied: bonusFlag};
+
+  const idx = getWeekIndex(state.weeks, weekId);
+  if(idx>=0){ state.weeks[idx] = entry; }
+  else{ state.weeks.push(entry); }
+
+  // Réévalue règles
+  evaluateSanctionsAndRewards(state);
+  saveData(state);
+  clearForm();
+  render();
+  alert('Semaine enregistrée ✅');
+});
+
+/* Nouvelle saisie */
+$('#newBtn').addEventListener('click', ()=>{
+  clearForm();
+  setWeekToCurrentMonday();
+});
+
+/* Edit / Delete */
+$('#historyBody').addEventListener('click', (e)=>{
+  const editId = e.target.getAttribute('data-edit');
+  const delId = e.target.getAttribute('data-del');
+  if(editId){
+    const w = state.weeks.find(x=>x.weekId===editId);
+    if(!w) return;
+    $('#weekInput').value = w.weekId;
+    [['assiduite',w.assiduite],['comportementScolaire',w.scolaire],['maison',w.maison],['foot',w.foot]].forEach(([name,val])=>{
+      const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+      if(el) el.checked = true;
+    });
+    $('#applyBonusBtn').dataset.applied = w.bonusApplied?'true':'false';
+    if(w.bonusApplied){ $('#applyBonusBtn').classList.add('star'); $('#applyBonusBtn').textContent='Bonus marqué pour cette semaine'; }
+    else{ $('#applyBonusBtn').classList.remove('star'); $('#applyBonusBtn').textContent='Appliquer 1 bonus à cette semaine'; }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  if(delId){
+    if(confirm('Supprimer cette semaine ?')){
+      const i = getWeekIndex(state.weeks, delId);
+      if(i>=0){ state.weeks.splice(i,1); saveData(state); render(); }
+    }
+  }
+});
+
+/* Export */
+$('#exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'coach-donnees.json';
+  a.click();
+});
+/* Import */
+$('#importInput').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const txt = await file.text();
+  try{
+    const obj = JSON.parse(txt);
+    if(!obj.weeks){ alert('Fichier invalide.'); return; }
+    localStorage.setItem(LS_KEY, JSON.stringify(obj));
+    Object.assign(state, obj);
+    render();
+    alert('Import effectué ✅');
+  }catch{ alert('Fichier invalide.'); }
+});
+
+/* Reset */
+$('#resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Tout effacer ?')) return;
+  localStorage.removeItem(LS_KEY);
+  const fresh = loadData();
+  Object.assign(state, fresh);
+  clearForm(); render();
+});
+
+/* PWA: enregistrement SW */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>
